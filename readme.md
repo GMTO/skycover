@@ -6,6 +6,10 @@ Giant Magellan Telescope (GMT). The goal of this project is to
 determine the probabilities of finding sufficiently bright stars for
 doing wavefront sensing.
 
+## Dependencies
+
+This code depends on the Geometry and Foreach libraries from the Boost package found at boost.org. These are "header only" libaries so only the include files need to be pointed to in the Makefile.
+
 ## Running
 
 I wrote this code on OS X 10.11.4 (El Capitan). This is what I get
@@ -24,7 +28,7 @@ compile an executable named <b>skycov</b>.
 The program takes seven command line arguments, all mandatory. Here is
 the usage message:
 
-    usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <nfiles>
+    usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf | --dgwf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <nfiles>
 
 And brief explanations of the arguments:
 
@@ -64,7 +68,7 @@ to be read out of the file 'gclef_obsc.txt'. Passing in '--m3' will
 cause an obscuration polygon to be read out of 'm3_obsc.txt'. And
 passing in '--dgnf' will cause no obscuration to be used, as there is
 no obscuration to take into account in the direct gregorian narrow
-field configuration.
+field configuration.  With '--dgwf', the AGWS sees no obscuration but instead creates shadows to the science focal plane below.  The size of the shadowed area must be less than 15% of the 20 arcminute diameter DGWF field of view.
 
 The format of the obscuration files must be one ordered pair per line,
 with x and y coordinates separated by a single tab.
@@ -230,7 +234,7 @@ buffer)."
 
 If instead of computing the sky coverage probability you simply want to validate a number of probe configurations, use the program <b>agwsvalid</b>.
 
-    ./agwsvalid <--m3 | --gclef | --dgnf> <--plot | --bool> < inputfile
+    ./agwsvalid <--m3 | --gclef | --dgnf | --dgwf> <--plot | --bool> < inputfile
 
 The input file consists of 8 numbers per line: four x y pairs of star positions expressed in degrees.  Lines beginning with # will be ignored.
 

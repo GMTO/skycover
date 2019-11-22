@@ -4,6 +4,7 @@
 #include "prod.h"
 #include "probe.h"
 #include "collisions.h"
+#include "shadow.h"
 #include <dirent.h>
 #include <math.h>
 #include <stdio.h>
@@ -24,6 +25,9 @@ using namespace std;
 #define MINIMUMTRACK_DEG        60
 #define N_OK_OBSCRD_FOR_PHASING 1
 #define N_OK_OBSCRD_FOR_4PROBE  0
+
+double fieldradius = 630;
+double maxshadow = 0.15;
 
 bool PRINT = false;
 
@@ -364,7 +368,8 @@ bool is_valid_pair_notracking(vector<Star> stars, vector< vector<Star> > probest
     StarGroup current_group = StarGroup(apply_indices(probestars, stargroups.next()));
     
     if (current_group.valid(wfsmag, gdrmag)) {
-      if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) ) {
+
+	if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) && shadowing_is_less_than(current_group, probes, fieldradius, maxshadow) ) {
         if (PRINT) {
           transform_and_print(probes, current_group, obscuration); 
         }
@@ -693,14 +698,14 @@ Polygon get_gclef_obscuration() {
 
 
 int main(int argc, char *argv[]) {
-  string slider_body_file  = "probe_slider_body.txt";
-  string slider_shaft_file = "probe_slider_shaft.txt";
-  string baffle_tube_file  = "probe_baffle_tube.txt";
+  string probe_slider_body_file  = "probe_slider_body.txt";
+  string probe_slider_shaft_file = "probe_slider_shaft.txt";
+  string probe_baffle_tube_file  = "probe_baffle_tube.txt";
 
-  Probe probe1(0,   slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe2(90,  slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe3(180, slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe4(270, slider_body_file, slider_shaft_file, baffle_tube_file);
+  Probe probe1(0,   probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe2(90,  probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe3(180, probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe4(270, probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
 
   vector<Probe> probes;
   probes.push_back(probe1);
@@ -708,13 +713,28 @@ int main(int argc, char *argv[]) {
   probes.push_back(probe3);
   probes.push_back(probe4);
 
+  string shadow_slider_body_file  = "shadow_slider_body.txt";
+  string shadow_slider_shaft_file = "shadow_slider_shaft.txt";
+  string shadow_baffle_tube_file  = "shadow_baffle_tube.txt";
+
+  Probe shadow1(0,   shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow2(90,  shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow3(180, shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow4(270, shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+
+  vector<Probe> shadows;
+  shadows.push_back(shadow1);
+  shadows.push_back(shadow2);
+  shadows.push_back(shadow3);
+  shadows.push_back(shadow4);
+
   Polygon GCLEF = get_gclef_obscuration();
   Polygon M3    = get_m3_obscuration();
   Polygon DGNF;
 
   /**
   arg format:
-      ./agwsvalid <--gclef | --m3 | --dgnf> <--plot | --bool>
+      ./agwsvalid <--gclef | --m3 | --dgnf | --dgwf> <--plot | --bool>
 
   argv[1] -> obscuration type. '--dgnf' for no obscuration
   **/
@@ -726,18 +746,36 @@ int main(int argc, char *argv[]) {
   char s[100];
   int n;
   int count=1;
+  
+  enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+  Mode mode;
+
+  double scale;  // mm per degree (we ignore distortion)
 
   if (argc < 3) {
-      cout << "usage: ./agwsvalid <--gclef | --m3 | --dgnf> <--plot | --bool>\nx1 y1 x2 y2 x3 y3 x4 y4\netc" << endl;
+      cout << "usage: ./agwsvalid <--gclef | --m3 | --dgnf | --dgwf> <--plot | --bool>\nx1 y1 x2 y2 x3 y3 x4 y4\netc" << endl;
       return 0;
   } else {
 
       if (strcmp(argv[1], "--gclef") == 0) {
 	  obscuration = GCLEF;
+	  mode = ModeGCLEF;
+	  scale = 3600 * 0.987;
       } else if (strcmp(argv[1], "--m3") == 0) {
 	  obscuration = M3;
-      } else {
+	  mode = ModeM3;
+	  scale = 3600 * 0.987;
+      } else if (strcmp(argv[1], "--dgnf") == 0) {
 	  obscuration = DGNF;
+	  mode = ModeDGNF;
+	  scale = 3600 * 0.987;
+      } else if (strcmp(argv[1], "--dgwf") == 0) {
+	  obscuration = DGNF;
+	  mode = ModeDGWF;
+	  scale = 3600 * 1.05;
+      } else {
+	  cerr << "Unknown mode:" << argv[1];
+	  exit(1);
       }
 
       if (strcmp(argv[2], "--plot") == 0) {
@@ -762,10 +800,10 @@ int main(int argc, char *argv[]) {
       if (n < 8) break;
 
       // Convert from degrees to mm (approximately)
-      stars.push_back( Star(x1*3600, y1*3600, 0, 0, 0));
-      stars.push_back( Star(x2*3600, y2*3600, 0, 0, 0));
-      stars.push_back( Star(x3*3600, y3*3600, 0, 0, 0));
-      stars.push_back( Star(x4*3600, y4*3600, 0, 0, 0));
+      stars.push_back( Star(x1*scale, y1*scale, 0, 0, 0));
+      stars.push_back( Star(x2*scale, y2*scale, 0, 0, 0));
+      stars.push_back( Star(x3*scale, y3*scale, 0, 0, 0));
+      stars.push_back( Star(x4*scale, y4*scale, 0, 0, 0));
       g = StarGroup(stars);
       // g.print();
 
@@ -790,6 +828,14 @@ int main(int argc, char *argv[]) {
       if (valid) {
 	  if ( has_collisions_in_parts(g, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) ) {
 	      cerr << "Probes too close.\n";
+	      valid = 0;
+	  }
+      }
+
+      // Check in DGWF mode that shadowing is not too large
+      if (valid && mode==ModeDGWF) {
+	  if ( !shadowing_is_less_than(g, shadows, fieldradius, maxshadow) ) {
+	      cerr << "Shadowing too large.\n";
 	      valid = 0;
 	  }
       }

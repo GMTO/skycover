@@ -9,11 +9,16 @@ if len(sys.argv) < 4:
 
 tab = starbase.Starbase(sys.argv[1])
 
+if (sys.argv[1].find("dgwf") >= 0):
+    ttylim = 16.25
+else:
+    ttylim = 16.4
+
+
 fig = plt.figure()
 fig.suptitle('Sky Coverage at Galactic Pole', fontsize=14, fontweight='bold')
 
 wfslim = 18.0
-ttylim = 16.7
 
 gmin = 13
 wmin = 13

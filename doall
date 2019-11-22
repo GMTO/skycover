@@ -1,15 +1,18 @@
 nfiles=1000
 
-#run4probe.sh --m3 --track $nfiles &> results.m3.track.$nfiles &
-#run4probe.sh --m3 --notrack $nfiles &> results.m3.notrack.$nfiles &
-#run4probe.sh --gclef --track $nfiles &> results.gclef.track.$nfiles &
-#run4probe.sh --gclef --notrack $nfiles &> results.gclef.notrack.$nfiles &
-#run4probe.sh --dgnf --notrack $nfiles &> results.dgnf.notrack.$nfiles
+root=results.6.5
 
+#run4probe.sh --m3 --track $nfiles &> $root.m3.track.$nfiles &
+#run4probe.sh --m3 --notrack $nfiles &> $root.m3.notrack.$nfiles &
+#run4probe.sh --gclef --track $nfiles &> $root.gclef.track.$nfiles &
+#run4probe.sh --gclef --notrack $nfiles &> $root.gclef.notrack.$nfiles &
+#run4probe.sh --dgnf --notrack $nfiles &> $root.dgnf.notrack.$nfiles
+#run4probe.sh --dgwf --notrack $nfiles &> $root.dgwf.notrack.$nfiles
 
-python plotgrid.py results.m3.track.$nfiles results.m3.track.$nfiles.png "M3 obscuration + AGWS tracking 60 deg"
-python plotgrid.py results.m3.notrack.$nfiles results.m3.notrack.$nfiles.png "M3 obscuration + GIR tracking"
-python plotgrid.py results.gclef.track.$nfiles results.gclef.track.$nfiles.png "GCLEF obscuration + AGWS tracking 60 deg"
-python plotgrid.py results.gclef.notrack.$nfiles results.gclef.notrack.$nfiles.png "GCLEF obscuration + GIR tracking"
-python plotgrid.py results.dgnf.notrack.$nfiles results.dgnf.notrack.$nfiles.png "DGNF (no obscuration) + GIR tracking"
+python plotgrid.py $root.m3.track.$nfiles $root.m3.track.$nfiles.png "M3 obscuration + AGWS tracking 60 deg"
+python plotgrid.py $root.m3.notrack.$nfiles $root.m3.notrack.$nfiles.png "M3 obscuration + GIR tracking"
+python plotgrid.py $root.gclef.track.$nfiles $root.gclef.track.$nfiles.png "GCLEF obscuration + AGWS tracking 60 deg"
+python plotgrid.py $root.gclef.notrack.$nfiles $root.gclef.notrack.$nfiles.png "GCLEF obscuration + GIR tracking"
+python plotgrid.py $root.dgnf.notrack.$nfiles $root.dgnf.notrack.$nfiles.png "DGNF (no obscuration) + GIR tracking"
+python plotgrid.py $root.dgwf.notrack.$nfiles $root.dgwf.notrack.$nfiles.png "DGWF (shadow<0.15) + GIR tracking"
 

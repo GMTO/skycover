@@ -85,7 +85,7 @@ Probe::Probe(double _angle, string slider_body_file,
   BaffleTube  = Base_BaffleTube;
 
   parts.push_back(SliderBody);
-  parts.push_back(BaffleTube);
+  parts.push_back(BaffleTube);  
   parts.push_back(SliderShaft);
 
   // SliderShaftFront = calculate_shaft_front(SliderShaft).rotate(angle * (PI / 180));

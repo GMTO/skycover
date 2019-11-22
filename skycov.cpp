@@ -4,6 +4,7 @@
 #include "prod.h"
 #include "probe.h"
 #include "collisions.h"
+#include "shadow.h"
 #include <dirent.h>
 #include <math.h>
 #include <stdio.h>
@@ -18,12 +19,19 @@ using namespace std;
 
 
 #define PI                      3.1415926535
-#define MINRANGE                (0.1   * 3600)
-#define MAXRANGE                (0.167 * 3600)
+#define MINRANGE                (6.5 / 60. * imgscale)
+#define MAXRANGE                (10. / 60. * imgscale)
 #define MINIMUMTRACK            (60 * (PI / 180))
 #define MINIMUMTRACK_DEG        60
 #define N_OK_OBSCRD_FOR_PHASING 1
 #define N_OK_OBSCRD_FOR_4PROBE  0
+
+double fieldradius = 630;
+double maxshadow = 0.15;
+double imgscale;  // mm per degree (we ignore distortion)
+
+enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+Mode mode;
 
 bool PRINT = false;
 
@@ -357,14 +365,15 @@ void track_and_print_probes(vector<Probe> probes, StarGroup group, Polygon obscu
      - If these tests pass, return true. Print the configuration if the PRINT flag is set.
 **/
 bool is_valid_pair_notracking(vector<Star> stars, vector< vector<Star> > probestars, vector<Probe> probes,
-                              double wfsmag, double gdrmag, Polygon obscuration) {
+                              vector<Probe>shadows, double wfsmag, double gdrmag, Polygon obscuration) {
   CombinationGenerator stargroups(get_list_sizes(probestars));
 
   while ( !stargroups.done ) {
     StarGroup current_group = StarGroup(apply_indices(probestars, stargroups.next()));
     
     if (current_group.valid(wfsmag, gdrmag)) {
-      if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) ) {
+	if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) && 
+             ((mode!=ModeDGWF) || shadowing_is_less_than(current_group, shadows, fieldradius, maxshadow) )) {
         if (PRINT) {
           transform_and_print(probes, current_group, obscuration); 
         }
@@ -407,7 +416,7 @@ bool is_valid_pair_notracking(vector<Star> stars, vector< vector<Star> > probest
    
 **/
 bool is_valid_pair_tracking(vector<Star> stars, vector< vector<Star> > probestars, vector<Probe> probes,
-                            double wfsmag, double gdrmag, Polygon obscuration) {
+                            vector<Probe> shadows, double wfsmag, double gdrmag, Polygon obscuration) {
 
     CombinationGenerator stargroups(get_list_sizes(probestars));
   
@@ -504,8 +513,8 @@ vector<Star> load_stars(string filename) {
     for ( ; getline(infile, line); ) {
         if (current_line > 2) {
             tokens = split(line, '\t');
-            double x = stod(tokens[idx]) * 3600;
-            double y = stod(tokens[idy]) * 3600;
+            double x = stod(tokens[idx]) * imgscale;
+            double y = stod(tokens[idy]) * imgscale;
             double r = stod(tokens[idr]);
 	    double j;
 	    if (idj<siz) {
@@ -641,12 +650,12 @@ int number_valid_phasing_files(vector<string> starfld_files, vector<Probe> probe
      directory. This info is recorded so that the visual simulation is able to display starfields
      over the probes.
 **/
-int number_valid_4probe_files(vector<string> starfld_files, vector<Probe> probes, double wfsmag, double gdrmag,
+int number_valid_4probe_files(vector<string> starfld_files, vector<Probe> probes, vector<Probe> shadows, double wfsmag, double gdrmag,
                               int nfiles, Polygon obscuration, bool tracking) {
   int valid_files = 0;
 
   bool (*is_valid_pair)(vector<Star> stars, vector< vector<Star> > probestars, vector<Probe> probes,
-                        double wfsmag, double gdrmag, Polygon obscuration);
+                        vector <Probe> shadows, double wfsmag, double gdrmag, Polygon obscuration);
 
   is_valid_pair = is_valid_pair_notracking;
   if (tracking) {
@@ -659,7 +668,7 @@ int number_valid_4probe_files(vector<string> starfld_files, vector<Probe> probes
     vector< vector<Star> > probestars  = get_probe_stars(stars, probes);
     vector< vector<Star> > current_bin = probestars_in_bin(probestars, ceil(max(wfsmag, gdrmag)));
 
-    if (is_valid_pair(stars, current_bin, probes, wfsmag, gdrmag, obscuration)) {
+    if (is_valid_pair(stars, current_bin, probes, shadows, wfsmag, gdrmag, obscuration)) {
       valid_files++;
 
       if (PRINT) {
@@ -693,20 +702,35 @@ Polygon get_gclef_obscuration() {
 
 
 int main(int argc, char *argv[]) {
-  string slider_body_file  = "probe_slider_body.txt";
-  string slider_shaft_file = "probe_slider_shaft.txt";
-  string baffle_tube_file  = "probe_baffle_tube.txt";
+  string probe_slider_body_file  = "probe_slider_body.txt";
+  string probe_slider_shaft_file = "probe_slider_shaft.txt";
+  string probe_baffle_tube_file  = "probe_baffle_tube.txt";
 
-  Probe probe1(0,   slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe2(90,  slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe3(180, slider_body_file, slider_shaft_file, baffle_tube_file);
-  Probe probe4(270, slider_body_file, slider_shaft_file, baffle_tube_file);
+  Probe probe1(0,   probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe2(90,  probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe3(180, probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
+  Probe probe4(270, probe_slider_body_file, probe_slider_shaft_file, probe_baffle_tube_file);
 
   vector<Probe> probes;
   probes.push_back(probe1);
   probes.push_back(probe2);
   probes.push_back(probe3);
   probes.push_back(probe4);
+
+  string shadow_slider_body_file  = "shadow_slider_body.txt";
+  string shadow_slider_shaft_file = "shadow_slider_shaft.txt";
+  string shadow_baffle_tube_file  = "shadow_baffle_tube.txt";
+
+  Probe shadow1(0,   shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow2(90,  shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow3(180, shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+  Probe shadow4(270, shadow_slider_body_file, shadow_slider_shaft_file, shadow_baffle_tube_file);
+
+  vector<Probe> shadows;
+  shadows.push_back(shadow1);
+  shadows.push_back(shadow2);
+  shadows.push_back(shadow3);
+  shadows.push_back(shadow4);
 
   Polygon GCLEF = get_gclef_obscuration();
   Polygon M3    = get_m3_obscuration();
@@ -731,8 +755,10 @@ int main(int argc, char *argv[]) {
   double     wfsmag, gdrmag, phsmag; 
   int nfiles;
 
+
+
   if (argc < 9) {
-    cout << "usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <phmag> <nfiles>" << endl;
+    cout << "usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf | --dgwf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <phmag> <nfiles>" << endl;
     return 0;
   } else {
     if (strcmp(argv[1], "--phasing") == 0) {
@@ -741,13 +767,26 @@ int main(int argc, char *argv[]) {
       phasing = false;
     }
 
-    if (strcmp(argv[2], "--gclef") == 0) {
-      obscuration = GCLEF;
-    } else if (strcmp(argv[2], "--m3") == 0) {
-      obscuration = M3;
-    } else {
-      obscuration = DGNF;
-    }
+      if (strcmp(argv[2], "--gclef") == 0) {
+	  obscuration = GCLEF;
+	  mode = ModeGCLEF;
+	  imgscale = 3600 * 0.987;
+      } else if (strcmp(argv[2], "--m3") == 0) {
+	  obscuration = M3;
+	  mode = ModeM3;
+	  imgscale = 3600 * 0.987;
+      } else if (strcmp(argv[2], "--dgnf") == 0) {
+	  obscuration = DGNF;
+	  mode = ModeDGNF;
+	  imgscale = 3600 * 0.987;
+      } else if (strcmp(argv[2], "--dgwf") == 0) {
+	  obscuration = DGNF;
+	  mode = ModeDGWF;
+	  imgscale = 3600 * 1.05;
+      } else {
+	  cerr << "Unknown mode:" << argv[2];
+	  exit(1);
+      }
 
     if (strcmp(argv[3], "--track") == 0) {
       tracking = true;
@@ -771,7 +810,7 @@ int main(int argc, char *argv[]) {
   if (phasing) {
     valid_files = number_valid_phasing_files(starfield_files, probes, phsmag, nfiles, M3);
   } else {
-    valid_files = number_valid_4probe_files(starfield_files, probes, wfsmag, gdrmag, nfiles, obscuration, tracking);
+      valid_files = number_valid_4probe_files(starfield_files, probes, shadows, wfsmag, gdrmag, nfiles, obscuration, tracking);
   }
 
   cerr << valid_files / nfiles << endl;

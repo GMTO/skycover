@@ -2,10 +2,11 @@ import sys
 import pylab as pl
 
 
-# The one argument to the script is the buffer around the probe in millimeters.
-# The minimum distance between probes is twice this value
-#
+# The arguments to the script are
+#    --  buffer around the probe in millimeters. The minimum distance between probes is twice this value
+#    --  diameter of probe shadow
 b = int(sys.argv[1])
+shadow = int(sys.argv[2])
 
 ltype = ["-","--"]
 
@@ -29,7 +30,7 @@ for i,buffer in enumerate([0, b]):
     slider_shaft_width += buffer
 
     slider_body_width = 330
-    slider_body_front = slider_shaft_back
+    slider_body_front = slider_shaft_back - 1
     slider_body_back  = 1300
 
     slider_body_width += buffer
@@ -58,6 +59,35 @@ pl.axis('off')
 pl.savefig("probe.png")
 
 prefix = "probe_"
+
+f = open(prefix + "baffle_tube.txt", "w+")
+print >>f, "{}\t{}".format(-baffle_tube_width, baffle_tube_back)
+print >>f, "{}\t{}".format( baffle_tube_width, baffle_tube_back)
+print >>f, "{}\t{}".format( baffle_tube_width, baffle_tube_front)
+print >>f, "{}\t{}".format(-baffle_tube_width, baffle_tube_front)
+f.close()
+
+f = open(prefix + "slider_shaft.txt", "w+")
+print >>f, "{}\t{}".format(-slider_shaft_width, slider_shaft_back)
+print >>f, "{}\t{}".format( slider_shaft_width, slider_shaft_back)
+print >>f, "{}\t{}".format( slider_shaft_width, slider_shaft_front)
+print >>f, "{}\t{}".format(-slider_shaft_width, slider_shaft_front)
+f.close()
+
+f = open(prefix + "slider_body.txt", "w+")
+print >>f, "{}\t{}".format(-slider_body_width, slider_body_back)
+print >>f, "{}\t{}".format( slider_body_width, slider_body_back)
+print >>f, "{}\t{}".format( slider_body_width, slider_body_front)
+print >>f, "{}\t{}".format(-slider_body_width, slider_body_front)
+f.close()
+
+baffle_tube_front -= (shadow/2 - buffer)
+baffle_tube_width += (shadow/2 - buffer)
+slider_body_front  -= (shadow/2 - buffer)
+slider_shaft_width += (shadow/2 - buffer)
+slider_body_width += (shadow/2 - buffer)
+
+prefix = "shadow_"
 
 f = open(prefix + "baffle_tube.txt", "w+")
 print >>f, "{}\t{}".format(-baffle_tube_width, baffle_tube_back)
