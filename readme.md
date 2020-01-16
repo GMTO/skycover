@@ -109,7 +109,7 @@ configuration.
 When using the --print option, it's a good idea to redirect output to
 some output file. Example
 
-     ./skycov --4probe --gclef --track --print 14 15 10 > sky.out
+     ./skycov --4probe --gclef --track --print 14 15 13.5 10 > sky.out
 
 Since the resulting probability will be printed to stderr, you get
 your answer and the printed coordinates in separate locations.
