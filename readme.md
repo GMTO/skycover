@@ -273,7 +273,7 @@ text it's possible to write a parser/plotter in any language.
 This is a frame displaying one valid configuration output by the
 command
 
-    ./skycov --4probe --m3 --notrack --print 15 15 10 > sky.out
+    ./skycov --4probe --m3 --notrack --print 15 15 13.5 10 > sky.out
 
 ![Valid config. example](/plots/valid_config_ex.png)
 
