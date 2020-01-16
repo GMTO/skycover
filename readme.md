@@ -25,10 +25,10 @@ when I run `g++ --version`.
 To build the project, run `make` in the top level directory. This will
 compile an executable named <b>skycov</b>.
 
-The program takes seven command line arguments, all mandatory. Here is
+The program takes eight command line arguments, all mandatory. Here is
 the usage message:
 
-    usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf | --dgwf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <nfiles>
+    usage: ./skycov <--4probe | --phasing> <--gclef | --m3 | --dgnf | --dgwf> <--track | --notrack> <--print | --noprint> <wfsmag> <gdrmag> <phmag> <nfiles>
 
 And brief explanations of the arguments:
 
@@ -38,7 +38,8 @@ And brief explanations of the arguments:
     arg 4: print configurations or not
     arg 5: wfsmag
     arg 6: gdrmag
-    arg 7: number of files to test
+    arg 7: phmag -- phasing star magnitude
+    arg 8: number of files to test
 
 The program will read in star field data from the star catalogues in
 the <b>Bes</b> directory, and return the probability of finding the
