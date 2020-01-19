@@ -124,7 +124,7 @@ magnitudes between 13 and 19. The 4probe script takes the same
 arguments as the skycov executable, minus the simulation type and
 given magnitudes.
 
-    ./run4probe <--gclef | --m3> <--notrack | --track> <nfiles>
+    ./run4probe <--gclef | --m3 | --dgnf | --dgwf> <--notrack | --track> <nfiles>
 
 The phasing script takes only the number of files to test, as the
 phasing configuration must use M3 and does not do tracking.
