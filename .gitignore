@@ -1,3 +1,7 @@
 skycov
+agwsvalid
 *.pyc
 dogrid.results.*
+results.*
+*~
+*.o
