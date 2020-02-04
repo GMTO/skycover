@@ -247,10 +247,10 @@ An example text file <b>slist.txt</b> is provided:
 
 In python you can call agwsvalid as follows:
 
-   import agwsvalid
-   mode = 'dgnf'
-   dgnf = agwsvalid.validator(mode)
-   result = dgnf.check(0 , .12, -.12, 0, 0, -.12, .12, 0)
+    import agwsvalid
+    mode = 'dgnf'
+    dgnf = agwsvalid.validator(mode)
+    result = dgnf.check(0 , .12, -.12, 0, 0, -.12, .12, 0)
 
 where mode should be 'dgnf', 'dgwf', or 'm3', and result is a boolean.
 See also agwsvalid-example.py
