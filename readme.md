@@ -340,3 +340,12 @@ passing in a filename where the movie will be stored.
 Be careful about how many configurations you record in the movie. File
 size will increase rapidly. A movie showing four valid tracking
 configurations can run to almost 20M.
+
+## Plotting probe positions with Python
+
+    < slist agwsvalid --mode dgnf --plot | python drawprobes.py
+
+Close each plot to see the next one.
+
+For M3 mode:
+    < slist agwsvalid --mode m3 --plot | python drawprobes.py m3
