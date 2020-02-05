@@ -10,9 +10,13 @@ using namespace std;
 
 
 #define PI 3.1415926535
-#define SWEEPANGLE (30 * (PI / 180))
+#define SWEEPANGLE (26.35 * (PI / 180))
 #define MINRANGE         (0.1   * 3600)
 #define MAXRANGE         (0.167 * 3600)
+
+enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+
+extern Mode mode;
 
 
 vector<string> split(const string &text, char sep) {
@@ -91,13 +95,13 @@ Probe::Probe(double _angle, string slider_body_file,
   // SliderShaftFront = calculate_shaft_front(SliderShaft).rotate(angle * (PI / 180));
   // BaffleTubeCtr    = calculate_baffle_ctr(BaffleTube).rotate(angle * (PI / 180));
 
-  SliderShaftFront = Point(0, 84).rotate(angle * (PI / 180));
+  SliderShaftFront = Point(0, 69.062).rotate(angle * (PI / 180));
   BaffleTubeCtr = Point(0, 409).rotate(angle * (PI / 180));
 
   Point origin_vector(0, 1000);
 
   // The radial position of the rotary axis.
-  radius = 1400;
+  radius = 1358;
 
   // BAM: Not sure what the 1.3 is for.  I'm changing radius from 1300 to 1400, so I'll change this also...
   //  axis = scale(origin_vector.rotate(angle * (PI / 180)), 1.300);
@@ -243,22 +247,19 @@ mm -> degrees -> arcminutes
 **/
 
 /**
-   The distance between the star and the front of the probe's slider shaft is approximated
-   by the formula
-
-       84 + 79.9*(r/10)^2
-
-   where r is the radial distance of the star from the origin and units are in mm.
-   The 79.9 comes from the AGWSFocalPlaneCurvature.xlsx spreadsheet, 
-         assuming a parabola that goes through the 10 arcmin point.
-   The 84 comes from geometry given in AGWS_Probe_Profile_Sky_Coverage_Sim_20160831.pptx
+   The distance between the star and the front of the probe's slider shaft is 
+   given in SAO-AGWS-DOC-0021-AGWSFocalPlaneParameters rev 3
 **/
 double baffle_separation(Point p) {
   Point origin;
   Point p_location_arcminutes((p.x / 3600) * 60, (p.y / 3600) * 60);
   double r = distance(p_location_arcminutes, origin);
-  
-  return 84 + 78.5 * pow(r/10, 2);
+
+  if (mode == ModeDGWF) {
+      return 189.109 + 1.06287366 * r * r + 1.5212314e-4 * r * r * r * r;
+  } else {
+      return  69.062 + 0.83398047 * r * r + 3.112125e-5  * r * r * r * r;
+  }
 }
 
 vector<Point> get_points(vector<Polygon> polygons) {

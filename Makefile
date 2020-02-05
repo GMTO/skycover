@@ -14,12 +14,12 @@ CC   = /opt/stow/gcc-6.2.0/bin/g++ -Wl,-rpath=/opt/stow/gcc-6.2.0/lib64
 all: probegeom skycov agwsvalid
 
 probegeom:
-	python agwsprobe.py 15 77
+	python agwsprobe.py 15 76
 
-skycov: skycov.cpp collisions.cpp probe.cpp point.cpp stargroup.cpp prod.cpp star.cpp shadow.cpp
+skycov: skycov.cpp $(SRCS)
 	$(CC) $(CFLAGS) -std=c++11 $(SRCS) skycov.cpp -o skycov 
 
-agwsvalid: agwsvalid.cpp collisions.cpp probe.cpp point.cpp stargroup.cpp prod.cpp star.cpp shadow.cpp
+agwsvalid: agwsvalid.cpp $(SRCS)
 	$(CC) $(CFLAGS) -std=c++11 $(SRCS) agwsvalid.cpp -o agwsvalid
 
 clean:

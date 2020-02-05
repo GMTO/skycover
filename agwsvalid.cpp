@@ -19,19 +19,20 @@ using namespace std;
 
 
 #define PI                      3.1415926535
-#define MINRANGE                (0.1   * 3600)
-#define MAXRANGE                (0.167 * 3600)
 #define MINIMUMTRACK            (60 * (PI / 180))
 #define MINIMUMTRACK_DEG        60
 #define N_OK_OBSCRD_FOR_PHASING 1
 #define N_OK_OBSCRD_FOR_4PROBE  0
 
-double fieldradius = 630;
+double fieldradius;
 double maxshadow = 0.15;
 
 bool PRINT = false;
 
 bool phasing;
+
+enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+Mode mode;
 
 /**
    Params:  vector of Star vectors.
@@ -747,8 +748,6 @@ int main(int argc, char *argv[]) {
   int n;
   int count=1;
   
-  enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
-  Mode mode;
 
   double scale;  // mm per degree (we ignore distortion)
 
@@ -760,23 +759,25 @@ int main(int argc, char *argv[]) {
       if (strcmp(argv[1], "--gclef") == 0) {
 	  obscuration = GCLEF;
 	  mode = ModeGCLEF;
-	  scale = 3600 * 0.987;
+	  scale = 3600 * 0.98716; 
       } else if (strcmp(argv[1], "--m3") == 0) {
 	  obscuration = M3;
 	  mode = ModeM3;
-	  scale = 3600 * 0.987;
+	  scale = 3600 * 0.98716;
       } else if (strcmp(argv[1], "--dgnf") == 0) {
 	  obscuration = DGNF;
 	  mode = ModeDGNF;
-	  scale = 3600 * 0.987;
+	  scale = 3600 * 0.98716;
       } else if (strcmp(argv[1], "--dgwf") == 0) {
 	  obscuration = DGNF;
 	  mode = ModeDGWF;
-	  scale = 3600 * 1.05;
+	  scale = 3600 * 1.04938;
       } else {
 	  cerr << "Unknown mode:" << argv[1];
 	  exit(1);
       }
+      
+      fieldradius = 10 / 60. * scale;
 
       if (strcmp(argv[2], "--plot") == 0) {
 	  PRINT = 1;
@@ -846,6 +847,7 @@ int main(int argc, char *argv[]) {
 	  ostringstream starfile;
 	  starfile << "starfiles/starfield" << count++ << ".cat";
 	  write_stars(stars, starfile.str(), 1,1);
+	  fflush(stdout);
       } else {
 	  printf("%d\n", valid);
 	  fflush(stdout);

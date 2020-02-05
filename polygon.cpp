@@ -72,6 +72,7 @@ void Polygon::polyprint() {
     fprintf(stdout, "(%f, %f) ", currpt->x, currpt->y);
   }
   fprintf(stdout, "\n");
+  fflush(stdout);
 }
 
 vector<double> Polygon::ycoords() {
