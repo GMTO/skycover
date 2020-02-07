@@ -28,6 +28,7 @@ double fieldradius;
 double maxshadow = 0.15;
 
 bool PRINT = false;
+bool SILENT = false;
 
 bool phasing;
 
@@ -781,7 +782,11 @@ int main(int argc, char *argv[]) {
 
       if (strcmp(argv[2], "--plot") == 0) {
 	  PRINT = 1;
-      } else {
+      } else if (strcmp(argv[2], "--boolonly") == 0) {
+	  PRINT = 0;
+	  SILENT = 1;
+      }
+      else {
 	  PRINT = 0;
       }
       
@@ -812,7 +817,9 @@ int main(int argc, char *argv[]) {
       // Check that each probe can reach its assigned star
       for (i=0; i<4;i++) {
 	  if (!probes[i].in_range(g.star_at(i))) {
-	      cerr <<  "Probe " << i << " cannot reach star " << i << ".\n" ; 
+	      if ( !SILENT) {
+		  cerr <<  "Probe " << i << " cannot reach star " << i << ".\n" ; 
+	      }
 	      valid = 0;
 	  }
       }
@@ -820,7 +827,9 @@ int main(int argc, char *argv[]) {
       // Check that probes are not obscured
       if (valid) {
 	  if ( config_is_obscured(g, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE)) {
-	      cerr << "At least one star is obscured.\n";
+	      if ( !SILENT) {
+		  cerr << "At least one star is obscured.\n";
+	      }
 	      valid = 0;
 	  }
       }
@@ -828,7 +837,9 @@ int main(int argc, char *argv[]) {
       // Check that probes do not get too close
       if (valid) {
 	  if ( has_collisions_in_parts(g, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) ) {
-	      cerr << "Probes too close.\n";
+	      if ( !SILENT) {
+		  cerr << "Probes too close.\n";
+	      }
 	      valid = 0;
 	  }
       }
@@ -836,12 +847,14 @@ int main(int argc, char *argv[]) {
       // Check in DGWF mode that shadowing is not too large
       if (valid && mode==ModeDGWF) {
 	  if ( !shadowing_is_less_than(g, shadows, fieldradius, maxshadow) ) {
-	      cerr << "Shadowing too large.\n";
+	      if ( !SILENT) {
+		  cerr << "Shadowing too large.\n";
+	      }
 	      valid = 0;
 	  }
       }
 
-      if (valid) cerr << "Looks good!\n";
+      if (valid && !SILENT) cerr << "Looks good!\n";
       if (PRINT) {
 	  transform_and_print(probes, g, obscuration); 
 	  ostringstream starfile;

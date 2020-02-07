@@ -251,7 +251,7 @@ mm -> degrees -> arcminutes
    given in SAO-AGWS-DOC-0021-AGWSFocalPlaneParameters rev 3
 **/
 double baffle_separation(Point p) {
-  Point origin;
+  Point origin (0,0);
   Point p_location_arcminutes((p.x / 3600) * 60, (p.y / 3600) * 60);
   double r = distance(p_location_arcminutes, origin);
 

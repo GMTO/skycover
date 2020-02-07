@@ -125,6 +125,11 @@ int colliding_in_parts(vector<Polygon> probe1parts, vector<Polygon> probe2parts)
   return 0;
 }
 
+bool probe_is_parked(Probe probe) {
+    return false;
+}
+
+
 bool star_is_obscured(Star s, Polygon obscuration) {
   if (obscuration.point_in_poly(s.point())) {
     return true;
@@ -138,7 +143,7 @@ bool star_is_obscured(Star s, Polygon obscuration) {
 **/
 bool config_is_obscured_with_current_stars(vector<Probe> probes, Polygon obscuration) {
   for (int i=0; i<probes.size(); i++) {
-    if (star_is_obscured(probes[i].current_star, obscuration)) {
+      if (!probe_is_parked(probes[i]) && star_is_obscured(probes[i].current_star, obscuration)) {
       return true;
     }
   }
