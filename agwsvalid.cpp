@@ -371,7 +371,7 @@ bool is_valid_pair_notracking(vector<Star> stars, vector< vector<Star> > probest
     
     if (current_group.valid(wfsmag, gdrmag)) {
 
-	if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) && shadowing_is_less_than(current_group, probes, fieldradius, maxshadow) ) {
+	if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) && shadowing(current_group, probes, fieldradius) < maxshadow ) {
         if (PRINT) {
           transform_and_print(probes, current_group, obscuration); 
         }
@@ -797,7 +797,8 @@ int main(int argc, char *argv[]) {
       StarGroup g;
       int valid = 1;
       int i;
-
+      double shadowfrac;
+      
       if (!fgets(s,100,stdin)) continue;
       if (s[0] == '#') continue;
 
@@ -834,6 +835,7 @@ int main(int argc, char *argv[]) {
 	  }
       }
 
+
       // Check that probes do not get too close
       if (valid) {
 	  if ( has_collisions_in_parts(g, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) ) {
@@ -845,8 +847,10 @@ int main(int argc, char *argv[]) {
       }
 
       // Check in DGWF mode that shadowing is not too large
+      shadowfrac = 0;
       if (valid && mode==ModeDGWF) {
-	  if ( !shadowing_is_less_than(g, shadows, fieldradius, maxshadow) ) {
+	  shadowfrac=shadowing(g, shadows, fieldradius);
+	  if (  shadowfrac > maxshadow ) {
 	      if ( !SILENT) {
 		  cerr << "Shadowing too large.\n";
 	      }
@@ -862,7 +866,7 @@ int main(int argc, char *argv[]) {
 	  write_stars(stars, starfile.str(), 1,1);
 	  fflush(stdout);
       } else {
-	  printf("%d\n", valid);
+	  printf("%d %.3f\n", valid, shadowfrac);
 	  fflush(stdout);
       }
   }

@@ -11,4 +11,4 @@ int colliding_in_parts(vector<Polygon> probe1parts, vector<Polygon> probe2parts)
 bool star_is_obscured(Star s, Polygon obscuration);
 bool config_is_obscured(StarGroup group, vector<Probe> probes, Polygon obscuration, int max_obscured);
 
-bool shadowing_is_less_than(StarGroup group, vector<Probe> probes, double fpradius, double maxshadow);
+double shadowing(StarGroup group, vector<Probe> probes, double fpradius);

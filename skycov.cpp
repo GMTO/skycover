@@ -373,7 +373,7 @@ bool is_valid_pair_notracking(vector<Star> stars, vector< vector<Star> > probest
     
     if (current_group.valid(wfsmag, gdrmag)) {
 	if ( !has_collisions_in_parts(current_group, probes, obscuration, N_OK_OBSCRD_FOR_4PROBE) && 
-             ((mode!=ModeDGWF) || shadowing_is_less_than(current_group, shadows, fieldradius, maxshadow) )) {
+             ((mode!=ModeDGWF) || shadowing(current_group, shadows, fieldradius) <  maxshadow )) {
         if (PRINT) {
           transform_and_print(probes, current_group, obscuration); 
         }

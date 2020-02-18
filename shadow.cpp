@@ -16,7 +16,7 @@ namespace bg = boost::geometry;
 
 #define NSEGS 100
 
-bool shadowing_is_less_than (StarGroup group, vector<Probe> probeshadows, double fovradius, double maxshadow) {
+double shadowing(StarGroup group, vector<Probe> probeshadows, double fovradius) {
 
     typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
     typedef bg::model::polygon<point_t> polygon_t; 
@@ -85,6 +85,6 @@ bool shadowing_is_less_than (StarGroup group, vector<Probe> probeshadows, double
 
     double fraction = a / (M_PI * fovradius * fovradius);
     //    std::cout << "Frac: " << fraction << std::endl;
-    return fraction < maxshadow;
+    return fraction;
 }
 

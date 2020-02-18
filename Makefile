@@ -3,13 +3,13 @@ SRCS = point.cpp probe.cpp star.cpp stargroup.cpp polygon.cpp collisions.cpp pro
 # O3 gave incorrect results on Linux
 INCLUDE = -I/home/bmcleod/include
 
-CFLAGS = $(INCLUDE) -O 
+CFLAGS = $(INCLUDE) -O3
 #CFLAGS = $(INCLUDE) -g -gdwarf-2
 
 CC   = g++
 
 # CfA compiler location
-CC   = /opt/stow/gcc-6.2.0/bin/g++ -Wl,-rpath=/opt/stow/gcc-6.2.0/lib64 
+#CC   = /opt/stow/gcc-6.2.0/bin/g++ -Wl,-rpath=/opt/stow/gcc-6.2.0/lib64 
 
 all: probegeom skycov agwsvalid
 
