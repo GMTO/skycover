@@ -84,7 +84,7 @@ L0 = data[:,11] # L0 (m)
 
 validator = agwsinit(config)
 
-for fieldno in range(56,57,1):
+for fieldno in range(0,1,1):
     telzen = (90-telel[fieldno])*np.pi/180.
     airmass = 1./np.cos(telzen)
 
