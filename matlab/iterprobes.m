@@ -1,5 +1,9 @@
 function iterprobes(starfield_dir, filename)
 
+    #Beware there are a few limitations of the matlab scripts that I haven't found a good way to abstract away. If you would like to simulate a dgnf test, you must go into the file, either iterprobes.m or iterprobes_tracking.m, and change the 'dims' variable at the top of the script from [4 4 4 4] to [4 4 4]. This is because the dgnf doesn't have an obscuration polygon to read out of the file. The 'dims' variable gives the number of point on the polygons described in the file.
+
+    #Another thing you must do if you would like to run a dgnf visual simulation is go into the file, iterprobes.m or iterprobes_tracking.m, and change the 'npolygons' variable from 13 to 12. This tells the script to display 12 polygons (3 for each probe) per frame, instead of 13 (3 for each probe plus the obscuration).
+
     dims = [4 4 4 4];
     probes = read_polygons(filename, dims);
     

@@ -1,7 +1,7 @@
 SRCS = point.cpp probe.cpp star.cpp stargroup.cpp polygon.cpp collisions.cpp prod.cpp shadow.cpp
 
 # O3 gave incorrect results on Linux
-INCLUDE = -I/home/bmcleod/include
+INCLUDE = -I/Users/bxin/simulations/boost_1_79_0/
 
 CFLAGS = $(INCLUDE) -O3
 #CFLAGS = $(INCLUDE) -g -gdwarf-2
@@ -17,16 +17,16 @@ probegeom:
 	python agwsprobe.py 15 76
 
 skycov: skycov.cpp $(SRCS)
-	$(CC) $(CFLAGS) -std=c++11 $(SRCS) skycov.cpp -o skycov 
+	$(CC) $(CFLAGS) -std=c++14 $(SRCS) skycov.cpp -o skycov 
 
 agwsvalid: agwsvalid.cpp $(SRCS)
-	$(CC) $(CFLAGS) -std=c++11 $(SRCS) agwsvalid.cpp -o agwsvalid
+	$(CC) $(CFLAGS) -std=c++14 $(SRCS) agwsvalid.cpp -o agwsvalid
 
 clean:
 	rm skycov agwsvalid
 
 dgwfshadow:
-	$(CC) $(CFLAGS) -I/home/bmcleod/include dgwfshadow.cpp
+	$(CC) $(CFLAGS) -I/Users/bxin/simulations/boost_1_79_0/ dgwfshadow.cpp
 
 shadow.o:	shadow.cpp
-	$(CC) $(CFLAGS) -c -I/home/bmcleod/include shadow.cpp
+	$(CC) $(CFLAGS) -c -I/Users/bxin/simulations/boost_1_79_0/ shadow.cpp
