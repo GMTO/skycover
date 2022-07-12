@@ -45,3 +45,9 @@ def test():
     t = np.ndarray.flatten(gsloc)
     check = dgnf.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
     print(check)
+
+    dgnf = validator('gmacs',silent=True)
+    gsloc = np.array([[0, 9.2/2], [10.7/2,0], [0, -9.2/2], [-10.7/2, 0] ])/60 #in degree
+    t = np.ndarray.flatten(gsloc)
+    check = dgnf.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
+    print(check)

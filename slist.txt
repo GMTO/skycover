@@ -1,5 +1,6 @@
 #
 # All these accessible for either DGNF or M3
+# in arcmin: (3,9), (-9,0), (0,-9), (9,0)
 0.05	0.15	-0.15	0	0	-0.15	0.15	0 
 #
 # This one obscured by M3; OK for DGNF
