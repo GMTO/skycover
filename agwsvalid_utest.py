@@ -23,6 +23,8 @@ print('dgnf 7.2 arcmin circle, expect success')
 success = dgnf.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
 assert success
 
+sys.exit()
+
 t = t0 * 6.4
 print('dgnf 6.4 arcmin circle, expect failure')
 success = dgnf.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])

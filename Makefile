@@ -13,8 +13,9 @@ CC   = g++
 
 all: probegeom skycov agwsvalid
 
-probegeom:
-	python agwsprobe.py 15 76
+# we now use agwsprobe.ipynb to create the txt files. do not overwrite that here.
+#probegeom:
+#	python agwsprobe.py 15 76
 
 skycov: skycov.cpp $(SRCS)
 	$(CC) $(CFLAGS) -std=c++14 $(SRCS) skycov.cpp -o skycov 

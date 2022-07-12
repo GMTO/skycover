@@ -11,12 +11,12 @@ using namespace std;
 
 #define PI 3.1415926535
 #define SWEEPANGLE (26.35 * (PI / 180))
-#define MINRANGE         (6.5 / 60. * imgscale)
-#define MAXRANGE         (10. / 60. * imgscale)
-#define MINRANGE_CADC14         (4.5 / 60. * imgscale)
-#define MAXRANGE_CADC14         (7. / 60. * imgscale)
+#define MINRANGE         (6.5 / 60. * mm_per_deg)
+#define MAXRANGE         (10. / 60. * mm_per_deg)
+#define MINRANGE_CADC14         (4.5 / 60. * mm_per_deg)
+#define MAXRANGE_CADC14         (7. / 60. * mm_per_deg)
 
-double imgscale;  // mm per degree (we ignore distortion)
+double mm_per_deg;  // mm per degree (we ignore distortion)
 
 enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF, ModeGMACS };
 
@@ -540,15 +540,15 @@ bool safe_distance_from_center(Star star) {
   Point star_pt(star.x, star.y), origin(0, 0);
     
     if (mode == ModeGCLEF) {
-        imgscale = 3600 * 0.987; //mm per degree
+        mm_per_deg = 3600 * 0.987; //mm per degree
     } else if (mode == ModeM3) {
-        imgscale = 3600 * 0.987;
+        mm_per_deg = 3600 * 0.987;
     } else if (mode == ModeDGNF) {
-        imgscale = 3600 * 0.987;
+        mm_per_deg = 3600 * 0.987;
     } else if (mode == ModeDGWF) {
-        imgscale = 3600 * 1.04938;
+        mm_per_deg = 3600 * 1.04938;
     } else if (mode == ModeGMACS) {
-        imgscale = 3600 * 65.02345/60.;
+        mm_per_deg = 3600 * 65.02345/60.;
     } else {
         cerr << "Unknown mode:" << mode;
         exit(1);
