@@ -557,14 +557,14 @@ bool safe_distance_from_center(Star star) {
   double dist = distance(star_pt, origin); //in mm
 
     if (mode == ModeGMACS){
-        cerr << dist << " CADC14 " << MINRANGE_CADC14 << " " << MAXRANGE_CADC14 << "\n";
+        //cerr << dist << " CADC14 " << MINRANGE_CADC14 << " " << MAXRANGE_CADC14 << "\n";
       if (MINRANGE_CADC14 < dist && dist < MAXRANGE_CADC14) { //compare in mm
         return true;
       } else {
         return false;
       }
     } else {
-        cerr << dist << " " << MINRANGE << " " << MAXRANGE << "\n";
+        //cerr << dist << " " << MINRANGE << " " << MAXRANGE << "\n";
       if (MINRANGE < dist && dist < MAXRANGE) {
         return true;
       } else {
@@ -591,9 +591,9 @@ bool Probe::in_range(Star s) {
     return false;
   }
 
-    cerr << "(" << center.x << ", " << center.y << ")  ("
-        << s.point().x << ", " << s.point().y << "), dist = "
-        << distance(center, s.point()) << ", radius = " << radius << "\n";
+    //cerr << "(" << center.x << ", " << center.y << ")  ("
+    //    << s.point().x << ", " << s.point().y << "), dist = "
+    //    << distance(center, s.point()) << ", radius = " << radius << "\n";
   if (distance(center, s.point()) > radius) { //radius = 1358mm
     return false;
   }

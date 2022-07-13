@@ -36,7 +36,8 @@ def agwsreachstars(validator,gspos):
         startloc = np.array([[0,0.159],[-0.159,0],[0,-0.159],[0.159,0]])*3600.
     elif validator.obsmode == 'gmacs':
         ##in arcsec, and slightly within the boundary; small angle preferred due to vignetting & spot size
-        startloc = np.array([[0, 9.2/2], [10.2/2,0], [0, -9.2/2], [-10.2/2, 0] ])*60
+        #these have to be 12->9->6->3 o'clock, because we will NOT be doing permutations below
+        startloc = np.array([[0, 9.2/2], [-10.2/2, 0], [0, -9.2/2], [10.2/2,0] ])*60
 
     for ns in range(nstars):
         for k in range(4):
@@ -44,7 +45,8 @@ def agwsreachstars(validator,gspos):
             loc[k,:] = gspos[ns,:]
             t = np.ndarray.flatten(loc / 3600.)
             results[k,ns] = validator.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
-
+            #print(k, ns, results[k,ns])
+            
     return results
 
 def agwscheck(validator,gsloc,nstars_out=4):
@@ -71,6 +73,7 @@ def agwscheck(validator,gsloc,nstars_out=4):
         startloc = np.array([[0,0.159],[-0.159,0],[0,-0.159],[0.159,0]])*3600.
     elif validator.obsmode == 'gmacs':
         ##in arcsec, and slightly within the boundary; small angle preferred due to vignetting & spot size
+        #these do not have to be 12->9->6->3 o'clock, because we will be doing permutations below
         startloc = np.array([[0, 9.2/2], [10.2/2,0], [0, -9.2/2], [-10.2/2, 0] ])*60
         
     if nstars_out < 4:
@@ -110,7 +113,7 @@ def agwscheck(validator,gsloc,nstars_out=4):
         gslocs = np.concatenate((gsloc,startloc),axis=0) 
 
         ncomb = nCk(4,nstars)
-        print(nstars, ncomb)
+        #print(nstars, ncomb)
         combinations = np.array(list(itertools.combinations(range(nstars+4),4)))
         combinations = combinations[0:ncomb,:] # only include the ones with the specified gsloc
         
@@ -119,7 +122,7 @@ def agwscheck(validator,gsloc,nstars_out=4):
                 loc = gslocs[perm,:]
                 t = np.ndarray.flatten(loc/3600.)
                 check = validator.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
-                print(perm, check)
+                #print(perm, check)
                 if check:
                     gsloc = loc
                     return (True,gsloc,np.array(perm))

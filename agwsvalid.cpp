@@ -861,7 +861,7 @@ int main(int argc, char *argv[]) {
       shadowfrac = 0;
       if (valid && mode==ModeDGWF) {
 	  shadowfrac=shadowing(g, shadows, fieldradius);
-          cerr << "shadow: " << shadowfrac << " " << maxshadow << "\n";
+          //cerr << "shadow: " << shadowfrac << " " << maxshadow << "\n";
 	  if (  shadowfrac > maxshadow ) {
 	      if ( !SILENT) {
 		  cerr << "Shadowing too large.\n";
