@@ -1,5 +1,8 @@
-function iterprobes(starfield_dir, filename)
+function gmacs_probes()
 
+    starfield_dir = '../starfiles';
+    filename = '../plot_gmacs.out';
+    
     %Beware there are a few limitations of the matlab scripts that I haven't found a good way to abstract away. 
     % If you would like to simulate a dgnf test, you must go into the file, either iterprobes.m or iterprobes_tracking.m, 
     % and change the 'dims' variable at the top of the script from [4 4 4 4] to [4 4 4]. 
@@ -19,14 +22,17 @@ function iterprobes(starfield_dir, filename)
     xlim([-2000, 2000]);
     axis equal;
     axis square;
+    xlabel('mm')
+    ylabel('mm')
 
     axes = [ 0,  1400, ...
             -1400,  0, ...
              0, -1400, ...
              1400,  0];
         
-    circle(0, 0, 0.1 * 3600, 'k');
-    circle(0, 0, -.167 * 3600, 'k');
+    maxradius = 65.02345*7 + 2.49e-3*7^3;
+    %circle(0, 0, 0.1 * 3600, 'k');
+    circle(0, 0, maxradius, 'k');
         
     for i=1:4
         plot([0, axes(i*2-1)], [0, axes(i*2)], 'k');

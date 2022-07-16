@@ -23,7 +23,7 @@ print('dgnf 7.2 arcmin circle, expect success')
 success = dgnf.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
 assert success
 
-sys.exit()
+#sys.exit()
 
 t = t0 * 6.4
 print('dgnf 6.4 arcmin circle, expect failure')
@@ -106,6 +106,8 @@ t = np.array([5.1 , 4.6, -5.1, 4.6, -5.1, -4.6, 5.1, -4.6])/60.
 print('gmacs, just outside the corners of the obscuration')
 success = gmacs.check(t[0],t[1],t[2],t[3],t[4],t[5],t[6],t[7])
 assert success
+
+sys.exit()
 
 t = np.array([5.0 , 4.5, -5.0, 4.5, -5.0, -4.5, 5.0, -4.5])/60.
 print('gmacs, just inside the corners of the obscuration')
