@@ -97,7 +97,7 @@ try:
 except:
     results = np.zeros(1000)
 
-for fieldno in range(360,1000):
+for fieldno in range(0,1):
 
     telzen = (90-telel[fieldno])*np.pi/180.
     airmass = 1./np.cos(telzen)
