@@ -6,6 +6,9 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <string>
+#include <limits.h>
+#include <unistd.h>
 using namespace std;
 
 
@@ -46,10 +49,29 @@ Probe::Probe() { }
    line, separated by a single tab.
 **/
 Polygon load_poly(string filename) {
-  ifstream infile(filename);
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    string s = std::string( result, (count > 0) ? count : 0 );
+
+    std::string delimiter = "/";
+    string dir = "";
+
+    size_t pos = 0;
+    std::string token;
+    while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+        //std::cout << token << std::endl;
+        s.erase(0, pos + delimiter.length());
+        dir = dir+token+"/";
+    }
+
+  //cerr << "  xxx " << dir << endl;
+  string inputfile = dir + filename;
+      
+  ifstream infile(inputfile);
     if(infile.fail()){
         //File does not exist code here
-        cerr << "cannot open file " << filename << "\n";
+        cerr << "cannot open file " << inputfile << "\n";
         exit(1);
     }
   vector<string> points;
