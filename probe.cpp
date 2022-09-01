@@ -47,6 +47,11 @@ Probe::Probe() { }
 **/
 Polygon load_poly(string filename) {
   ifstream infile(filename);
+    if(infile.fail()){
+        //File does not exist code here
+        cerr << "cannot open file " << filename << "\n";
+        exit(1);
+    }
   vector<string> points;
   string line;
   Polygon poly;
@@ -555,9 +560,9 @@ bool safe_distance_from_center(Star star) {
         }
     
   double dist = distance(star_pt, origin); //in mm
-    cerr << " mode = " << mode << "\n";
+    //cerr << " mode = " << mode << "\n";
     if (mode == ModeGMACS){
-        cerr << dist << " CADC14 " << MINRANGE_CADC14 << " " << MAXRANGE_CADC14 << "\n";
+        //cerr << dist << " CADC14 " << MINRANGE_CADC14 << " " << MAXRANGE_CADC14 << "\n";
       if (MINRANGE_CADC14 < dist && dist < MAXRANGE_CADC14) { //compare in mm
         return true;
       } else {
@@ -591,9 +596,9 @@ bool Probe::in_range(Star s) {
     return false;
   }
 
-    cerr << "(" << center.x << ", " << center.y << ")  ("
-        << s.point().x << ", " << s.point().y << "), dist = "
-        << distance(center, s.point()) << ", radius = " << radius << "\n";
+    //cerr << "(" << center.x << ", " << center.y << ")  ("
+    //    << s.point().x << ", " << s.point().y << "), dist = "
+    //    << distance(center, s.point()) << ", radius = " << radius << "\n";
   if (distance(center, s.point()) > radius) { //radius = 1358mm
     return false;
   }
