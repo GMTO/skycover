@@ -11,10 +11,14 @@ using namespace std;
 
 #define PI 3.1415926535
 #define SWEEPANGLE (26.35 * (PI / 180))
-#define MINRANGE         (0.1   * 3600)
-#define MAXRANGE         (0.167 * 3600)
+#define MINRANGE         (6.5 / 60. * mm_per_deg)
+#define MAXRANGE         (10. / 60. * mm_per_deg)
+#define MINRANGE_CADC14         (4.5 / 60. * mm_per_deg)
+#define MAXRANGE_CADC14         (7. / 60. * mm_per_deg)
 
-enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+double mm_per_deg;  // mm per degree (we ignore distortion)
+
+enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF, ModeGMACS };
 
 extern Mode mode;
 
@@ -43,6 +47,11 @@ Probe::Probe() { }
 **/
 Polygon load_poly(string filename) {
   ifstream infile(filename);
+    if(infile.fail()){
+        //File does not exist code here
+        cerr << "cannot open file " << filename << "\n";
+        exit(1);
+    }
   vector<string> points;
   string line;
   Polygon poly;
@@ -257,6 +266,8 @@ double baffle_separation(Point p) {
 
   if (mode == ModeDGWF) {
       return 189.109 + 1.06287366 * r * r + 1.5212314e-4 * r * r * r * r;
+  } else if (mode == ModeGMACS) {
+    return 235.289 + 1.35076769 * r *r + 2.53369431e-3 * r * r * r * r;
   } else {
       return  69.062 + 0.83398047 * r * r + 3.112125e-5  * r * r * r * r;
   }
@@ -532,14 +543,39 @@ vector<Point> Probe::get_range_extremes(Star s) {
 **/
 bool safe_distance_from_center(Star star) {
   Point star_pt(star.x, star.y), origin(0, 0);
-  
-  double dist = distance(star_pt, origin);
-
-  if (MINRANGE < dist && dist < MAXRANGE) {
-    return true;
-  } else {
-    return false;
-  }
+    
+    if (mode == ModeGCLEF) {
+        mm_per_deg = 3600 * 0.987; //mm per degree
+    } else if (mode == ModeM3) {
+        mm_per_deg = 3600 * 0.987;
+    } else if (mode == ModeDGNF) {
+        mm_per_deg = 3600 * 0.987;
+    } else if (mode == ModeDGWF) {
+        mm_per_deg = 3600 * 1.04938;
+    } else if (mode == ModeGMACS) {
+        mm_per_deg = 3600 * 65.02345/60.;
+    } else {
+        cerr << "Unknown mode:" << mode;
+        exit(1);
+        }
+    
+  double dist = distance(star_pt, origin); //in mm
+    //cerr << " mode = " << mode << "\n";
+    if (mode == ModeGMACS){
+        //cerr << dist << " CADC14 " << MINRANGE_CADC14 << " " << MAXRANGE_CADC14 << "\n";
+      if (MINRANGE_CADC14 < dist && dist < MAXRANGE_CADC14) { //compare in mm
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+        //cerr << dist << " " << MINRANGE << " " << MAXRANGE << "\n";
+      if (MINRANGE < dist && dist < MAXRANGE) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 }
 
 /**
@@ -556,12 +592,14 @@ bool safe_distance_from_center(Star star) {
 **/
 bool Probe::in_range(Star s) {
   vector<Point> range_extremes = get_range_extremes(s);
-
   if (range_extremes.size() < 2) {
     return false;
   }
 
-  if (distance(center, s.point()) > radius) {
+    //cerr << "(" << center.x << ", " << center.y << ")  ("
+    //    << s.point().x << ", " << s.point().y << "), dist = "
+    //    << distance(center, s.point()) << ", radius = " << radius << "\n";
+  if (distance(center, s.point()) > radius) { //radius = 1358mm
     return false;
   }
 

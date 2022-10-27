@@ -164,6 +164,7 @@ bool config_is_obscured(StarGroup group, vector<Probe> probes, Polygon obscurati
   }
 
   if (obscured_probes > max_obscured) {
+    //cerr << "obscured_probes = " << obscured_probes << "\n";
     return true;
   }
 

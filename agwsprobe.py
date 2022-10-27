@@ -20,7 +20,7 @@ for i,buffer in enumerate([0, b]):
     baffle_tube_back  = 409
 
     baffle_tube_front -= buffer
-    baffle_tube_width += buffer
+    baffle_tube_width += buffer #width is really half-width
     
     slider_shaft_width = 64
     slider_shaft_front = 69.062

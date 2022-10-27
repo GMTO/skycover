@@ -32,7 +32,7 @@ bool SILENT = false;
 
 bool phasing;
 
-enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF };
+enum Mode { ModeGCLEF, ModeM3, ModeDGNF, ModeDGWF, ModeGMACS };
 Mode mode;
 
 /**
@@ -698,6 +698,12 @@ Polygon get_gclef_obscuration() {
   return load_poly("gclef_obsc.txt");
 }
 
+/**
+   Load the polygon that represents the gmacs obscuration
+**/
+Polygon get_gmacs_obscuration() {
+  return load_poly("gmacs_obsc.txt");
+}
 
 int main(int argc, char *argv[]) {
   string probe_slider_body_file  = "probe_slider_body.txt";
@@ -732,6 +738,7 @@ int main(int argc, char *argv[]) {
 
   Polygon GCLEF = get_gclef_obscuration();
   Polygon M3    = get_m3_obscuration();
+  Polygon GMACS = get_gmacs_obscuration();
   Polygon DGNF;
 
   /**
@@ -753,7 +760,7 @@ int main(int argc, char *argv[]) {
   double scale;  // mm per degree (we ignore distortion)
 
   if (argc < 3) {
-      cout << "usage: ./agwsvalid <--gclef | --m3 | --dgnf | --dgwf> <--plot | --bool>\nx1 y1 x2 y2 x3 y3 x4 y4\netc" << endl;
+      cout << "usage: ./agwsvalid <--gclef | --m3 | --dgnf | --dgwf | --gmacs> <--plot | --bool>\nx1 y1 x2 y2 x3 y3 x4 y4\netc" << endl;
       return 0;
   } else {
 
@@ -773,12 +780,16 @@ int main(int argc, char *argv[]) {
 	  obscuration = DGNF;
 	  mode = ModeDGWF;
 	  scale = 3600 * 1.04938;
+      } else if (strcmp(argv[1], "--gmacs") == 0) {
+        obscuration = GMACS;
+        mode = ModeGMACS;
+        scale = 3600 * 65.02345/60.; //mm per degree (high order terms ignored)
       } else {
 	  cerr << "Unknown mode:" << argv[1];
 	  exit(1);
       }
       
-      fieldradius = 10 / 60. * scale;
+      fieldradius = 10 / 60. * scale;//in mm, for radius = 10 arcmin
 
       if (strcmp(argv[2], "--plot") == 0) {
 	  PRINT = 1;
@@ -850,6 +861,7 @@ int main(int argc, char *argv[]) {
       shadowfrac = 0;
       if (valid && mode==ModeDGWF) {
 	  shadowfrac=shadowing(g, shadows, fieldradius);
+          //cerr << "shadow: " << shadowfrac << " " << maxshadow << "\n";
 	  if (  shadowfrac > maxshadow ) {
 	      if ( !SILENT) {
 		  cerr << "Shadowing too large.\n";
